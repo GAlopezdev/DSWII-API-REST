@@ -1,9 +1,9 @@
-package com.finrisk.repository;
+package com.empresa.repository;
 
-import com.finrisk.entity.EvaluacionFinanciera;
+import com.empresa.model.entity.EvaluacionFinanciera;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface EvaluacionRepository extends JpaRepository<EvaluacionFinanciera, Integer> {
+public interface EvaluacionRepository extends JpaRepository<EvaluacionFinanciera, Long> {
 }

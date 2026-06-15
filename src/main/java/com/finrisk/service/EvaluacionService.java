@@ -1,34 +1,38 @@
-package com.finrisk.service;
+package com.empresa.service;
 
-import com.finrisk.entity.EvaluacionFinanciera;
-import com.finrisk.repository.EvaluacionRepository;
+import com.empresa.mapper.EvaluacionMapper;
+import com.empresa.model.dto.EvaluacionRequest;
+import com.empresa.model.dto.EvaluacionResponse;
+import com.empresa.model.entity.EvaluacionFinanciera;
+import com.empresa.repository.EvaluacionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import java.util.List;
-import java.util.Optional;
+import java.math.BigDecimal;
 
 @Service
 public class EvaluacionService {
 
-    @Autowired
-    private EvaluacionRepository evaluacionRepository;
+	@Autowired
+	private EvaluacionRepository evaluacionRepository;
 
-    // TAREA 3: Historial - Listar todas las evaluaciones
-    public List<EvaluacionFinanciera> listarHistorial() {
-        return evaluacionRepository.findAll();
-    }
+	@Autowired
+	private EvaluacionMapper evaluacionMapper;
 
-    // TAREA 3: Buscar una sola evaluación por ID
-    public Optional<EvaluacionFinanciera> obtenerPorId(Integer id) {
-        return evaluacionRepository.findById(id);
-    }
+	public EvaluacionResponse crearEvaluacion(EvaluacionRequest request) {
+		EvaluacionFinanciera evaluacion = evaluacionMapper.toEntity(request);
 
-    // TAREA 3: Limpieza - Eliminar un registro permanentemente (Hard-delete)
-    public boolean eliminarEvaluacion(Integer id) {
-        if (evaluacionRepository.existsById(id)) {
-            evaluacionRepository.deleteById(id);
-            return true;
-        }
-        return false;
-    }
+		BigDecimal mitadSueldo = request.getIngresosMensuales().divide(new BigDecimal("2"));
+
+		if (request.getDeudasActuales().compareTo(mitadSueldo) > 0) {
+			evaluacion.setResultadoRiesgo("ALTO");
+		} else {
+			evaluacion.setResultadoRiesgo("BAJO");
+		}
+
+		evaluacion.setEstadoSolicitud("PENDIENTE");
+
+		EvaluacionFinanciera evaluacionGuardada = evaluacionRepository.save(evaluacion);
+
+		return evaluacionMapper.toResponse(evaluacionGuardada);
+	}
 }
