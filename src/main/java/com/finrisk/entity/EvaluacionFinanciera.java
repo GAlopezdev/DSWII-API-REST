@@ -13,6 +13,10 @@ public class EvaluacionFinanciera {
     @Column(name = "id_evalucion")
     private Integer idEvaluacion;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_empresa")
+    private Empresa empresa;
+
     @Column(name = "nombre_cliente", nullable = false, length = 150)
     private String nombrePersona;
 
@@ -96,5 +100,13 @@ public class EvaluacionFinanciera {
 
     public void setEstadoSolicitud(String estadoSolicitud) {
         this.estadoSolicitud = estadoSolicitud;
+    }
+
+    public Empresa getEmpresa() {
+        return empresa;
+    }
+
+    public void setEmpresa(Empresa empresa) {
+        this.empresa = empresa;
     }
 }
