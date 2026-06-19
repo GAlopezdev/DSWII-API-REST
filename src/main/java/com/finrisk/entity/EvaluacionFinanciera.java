@@ -2,6 +2,8 @@ package com.finrisk.entity;
 
 import jakarta.persistence.*;
 
+import java.math.BigDecimal;
+
 @Entity
 @Table(name = "evaluaciones_financieras")
 public class EvaluacionFinanciera {
@@ -14,11 +16,11 @@ public class EvaluacionFinanciera {
     @Column(name = "nombre_cliente", nullable = false, length = 150)
     private String nombrePersona;
 
-    @Column(name = "ingresos_mensuales", nullable = false)
-    private Double sueldoMensual;
+    @Column(name = "ingresos_mensuales", nullable = false, precision = 10, scale = 2)
+    private BigDecimal sueldoMensual;
 
-    @Column(name = "deudas_actuales", nullable = false)
-    private Double deudasMensuales;
+    @Column(name = "deudas_actuales", nullable = false, precision = 10, scale = 2)
+    private BigDecimal deudasMensuales;
 
     @Column(name = "resultado_riesgo", length = 20)
     private String resultadoRiesgo;
@@ -48,19 +50,19 @@ public class EvaluacionFinanciera {
         this.nombrePersona = nombrePersona;
     }
 
-    public Double getSueldoMensual() {
+    public BigDecimal getSueldoMensual() {
         return sueldoMensual;
     }
 
-    public void setSueldoMensual(Double sueldoMensual) {
+    public void setSueldoMensual(BigDecimal sueldoMensual) {
         this.sueldoMensual = sueldoMensual;
     }
 
-    public Double getDeudasMensuales() {
+    public BigDecimal getDeudasMensuales() {
         return deudasMensuales;
     }
 
-    public void setDeudasMensuales(Double deudasMensuales) {
+    public void setDeudasMensuales(BigDecimal deudasMensuales) {
         this.deudasMensuales = deudasMensuales;
     }
 

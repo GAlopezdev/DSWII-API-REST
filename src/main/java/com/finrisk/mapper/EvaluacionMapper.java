@@ -8,26 +8,26 @@ import org.springframework.stereotype.Component;
 @Component
 public class EvaluacionMapper {
 
-	public EvaluacionFinanciera toEntity(EvaluacionRequest request) {
-		EvaluacionFinanciera entity = new EvaluacionFinanciera();
-		entity.setNombrePersona(request.getNombreCliente());
-		entity.setDniCliente(request.getDniCliente());
-		entity.setDeudasMensuales(request.getIngresosMensuales());
-		entity.setDeudasActuales(request.getDeudasActuales());
-		entity.setPuntajeScore(request.getPuntajeScore());
-		return entity;
-	}
+    public EvaluacionFinanciera toEntity(EvaluacionRequest request) {
+        EvaluacionFinanciera entity = new EvaluacionFinanciera();
+        entity.setNombrePersona(request.getNombreCliente());
+        entity.setDniCliente(request.getDniCliente());
+        entity.setSueldoMensual(request.getIngresosMensuales());
+        entity.setDeudasMensuales(request.getDeudasActuales());
+        entity.setPuntajeScore(request.getPuntajeScore());
+        return entity;
+    }
 
-	public EvaluacionResponse toResponse(EvaluacionFinanciera entity) {
-		EvaluacionResponse response = new EvaluacionResponse();
-		response.setIdEvalucion(entity.getIdEvalucion());
-		response.setNombreCliente(entity.getNombreCliente());
-		response.setDniCliente(entity.getDniCliente());
-		response.setIngresosMensuales(entity.getIngresosMensuales());
-		response.setDeudasActuales(entity.getDeudasActuales());
-		response.setPuntajeScore(entity.getPuntajeScore());
-		response.setResultadoRiesgo(entity.getResultadoRiesgo());
-		response.setEstadoSolicitud(entity.getEstadoSolicitud());
-		return response;
-	}
+    public EvaluacionResponse toResponse(EvaluacionFinanciera entity) {
+        EvaluacionResponse response = new EvaluacionResponse();
+        response.setIdEvalucion(entity.getIdEvaluacion().longValue());
+        response.setNombreCliente(entity.getNombrePersona());
+        response.setDniCliente(entity.getDniCliente());
+        response.setIngresosMensuales(entity.getSueldoMensual());
+        response.setDeudasActuales(entity.getDeudasMensuales());
+        response.setPuntajeScore(entity.getPuntajeScore());
+        response.setResultadoRiesgo(entity.getResultadoRiesgo());
+        response.setEstadoSolicitud(entity.getEstadoSolicitud());
+        return response;
+    }
 }
