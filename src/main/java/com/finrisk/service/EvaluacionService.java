@@ -7,6 +7,7 @@ import com.finrisk.entity.EvaluacionFinanciera;
 import com.finrisk.repository.EvaluacionRepository;
 import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 
 @Service
 public class EvaluacionService {
@@ -22,18 +23,32 @@ public class EvaluacionService {
     public EvaluacionResponse crearEvaluacion(EvaluacionRequest request) {
 		EvaluacionFinanciera evaluacion = evaluacionMapper.toEntity(request);
 
-		BigDecimal mitadSueldo = request.getIngresosMensuales().divide(new BigDecimal("2"));
+        BigDecimal ingresos = request.getIngresosMensuales();
+        BigDecimal deudas = request.getDeudasActuales();
 
-		if (request.getDeudasActuales().compareTo(mitadSueldo) > 0) {
-			evaluacion.setResultadoRiesgo("ALTO");
-		} else {
-			evaluacion.setResultadoRiesgo("BAJO");
-		}
+        int score = calcularScore(ingresos, deudas);
+        String riesgo = determinarRiesgo(score);
 
-		evaluacion.setEstadoSolicitud("PENDIENTE");
+        evaluacion.setPuntajeScore(score);
+        evaluacion.setResultadoRiesgo(riesgo);
+        evaluacion.setEstadoSolicitud("PENDIENTE");
 
 		EvaluacionFinanciera evaluacionGuardada = evaluacionRepository.save(evaluacion);
-
 		return evaluacionMapper.toResponse(evaluacionGuardada);
 	}
+
+    private int calcularScore(BigDecimal ingresos, BigDecimal deudas) {
+        if (ingresos.compareTo(BigDecimal.ZERO) == 0 || deudas.compareTo(ingresos) >= 0) {
+            return 0;
+        }
+        BigDecimal libre = ingresos.subtract(deudas);
+        BigDecimal porcentaje = libre.divide(ingresos, 4, RoundingMode.HALF_UP);
+        return porcentaje.multiply(new BigDecimal("1000")).setScale(0, RoundingMode.HALF_UP).intValue();
+    }
+
+    private String determinarRiesgo(int score) {
+        if (score >= 700) return "BAJO";
+        else if (score >= 300) return "MEDIO";
+        else return "ALTO";
+    }
 }
