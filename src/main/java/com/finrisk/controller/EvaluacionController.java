@@ -3,6 +3,7 @@ package com.finrisk.controller;
 import com.finrisk.dto.EvaluacionRequest;
 import com.finrisk.dto.EvaluacionResponse;
 import com.finrisk.service.EvaluacionService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,7 +19,7 @@ public class EvaluacionController {
     }
 
     @PostMapping
-	public ResponseEntity<EvaluacionResponse> registrarEvaluacion(@RequestBody EvaluacionRequest request) {
+	public ResponseEntity<EvaluacionResponse> registrarEvaluacion(@Valid @RequestBody EvaluacionRequest request) {
 		EvaluacionResponse response = evaluacionService.crearEvaluacion(request);
 		return new ResponseEntity<>(response, HttpStatus.CREATED);
 	}
