@@ -8,7 +8,7 @@ public class EvaluacionFinanciera {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id_evalucion") // Mapeado exacto a tu PK de la BD
+    @Column(name = "id_evalucion")
     private Integer idEvaluacion;
 
     @Column(name = "nombre_cliente", nullable = false, length = 150)
@@ -21,9 +21,8 @@ public class EvaluacionFinanciera {
     private Double deudasMensuales;
 
     @Column(name = "resultado_riesgo", length = 20)
-    private String resultadoRiesgo; // "ALTO" o "BAJO"
+    private String resultadoRiesgo;
 
-    // --- NUEVOS CAMPOS DE LA BASE DE DATOS REAL (Para que no falle al leer) ---
     @Column(name = "dni_cliente", nullable = false, length = 20)
     private String dniCliente;
 
@@ -32,8 +31,6 @@ public class EvaluacionFinanciera {
 
     @Column(name = "estado_solicitud", length = 50)
     private String estadoSolicitud;
-
-    // --- GETTERS Y SETTERS MANUALES ---
 
     public Integer getIdEvaluacion() {
         return idEvaluacion;

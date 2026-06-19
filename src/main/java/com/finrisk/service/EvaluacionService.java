@@ -1,24 +1,25 @@
-package com.empresa.service;
+package com.finrisk.service;
 
-import com.empresa.mapper.EvaluacionMapper;
-import com.empresa.model.dto.EvaluacionRequest;
-import com.empresa.model.dto.EvaluacionResponse;
-import com.empresa.model.entity.EvaluacionFinanciera;
-import com.empresa.repository.EvaluacionRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.finrisk.mapper.EvaluacionMapper;
+import com.finrisk.dto.EvaluacionRequest;
+import com.finrisk.dto.EvaluacionResponse;
+import com.finrisk.entity.EvaluacionFinanciera;
+import com.finrisk.repository.EvaluacionRepository;
 import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 
 @Service
 public class EvaluacionService {
 
-	@Autowired
-	private EvaluacionRepository evaluacionRepository;
+	private final EvaluacionRepository evaluacionRepository;
+	private final EvaluacionMapper evaluacionMapper;
 
-	@Autowired
-	private EvaluacionMapper evaluacionMapper;
+    public EvaluacionService(EvaluacionRepository evaluacionRepository, EvaluacionMapper evaluacionMapper) {
+        this.evaluacionRepository = evaluacionRepository;
+        this.evaluacionMapper = evaluacionMapper;
+    }
 
-	public EvaluacionResponse crearEvaluacion(EvaluacionRequest request) {
+    public EvaluacionResponse crearEvaluacion(EvaluacionRequest request) {
 		EvaluacionFinanciera evaluacion = evaluacionMapper.toEntity(request);
 
 		BigDecimal mitadSueldo = request.getIngresosMensuales().divide(new BigDecimal("2"));

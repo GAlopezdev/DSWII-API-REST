@@ -1,4 +1,4 @@
-package com.empresa.security;
+package com.finrisk.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

@@ -1,6 +1,6 @@
-package com.empresa.repository;
+package com.finrisk.repository;
 
-import com.empresa.model.entity.EvaluacionFinanciera;
+import com.finrisk.entity.EvaluacionFinanciera;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
