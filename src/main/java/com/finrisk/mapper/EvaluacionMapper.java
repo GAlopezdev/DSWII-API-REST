@@ -14,7 +14,6 @@ public class EvaluacionMapper {
         entity.setDniCliente(request.getDniCliente());
         entity.setSueldoMensual(request.getIngresosMensuales());
         entity.setDeudasMensuales(request.getDeudasActuales());
-        entity.setPuntajeScore(request.getPuntajeScore());
         return entity;
     }
 

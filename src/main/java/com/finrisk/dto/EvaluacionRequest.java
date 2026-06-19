@@ -23,18 +23,6 @@ public class EvaluacionRequest {
     @DecimalMin(value = "0.00", message = "Las deudas no pueden ser negativas")
     private BigDecimal deudasActuales;
 
-    @NotNull(message = "El puntaje score es obligatorio")
-    @Min(value = 0, message = "El puntaje no puede ser negativo")
-    private Integer puntajeScore;
-
-    public Integer getPuntajeScore() {
-        return puntajeScore;
-    }
-
-    public void setPuntajeScore(Integer puntajeScore) {
-        this.puntajeScore = puntajeScore;
-    }
-
     public String getNombreCliente() {
         return nombreCliente;
     }
