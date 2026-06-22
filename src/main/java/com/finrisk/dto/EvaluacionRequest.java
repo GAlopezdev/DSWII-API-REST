@@ -25,19 +25,6 @@ public class EvaluacionRequest {
     @NotNull(message = "Las deudas actuales son obligatorias")
     @DecimalMin(value = "0.00", message = "Las deudas no pueden ser negativas")
     private BigDecimal deudasActuales;
-    
-    private String estadoSolicitud;
-    
-    
-    
-    
-    public String getEstadoSolicitud() {
-		return estadoSolicitud;
-	}
-
-	public void setEstadoSolicitud(String estadoSolicitud) {
-		this.estadoSolicitud = estadoSolicitud;
-	}
 
 	public String getNombreCliente() {
         return nombreCliente;
