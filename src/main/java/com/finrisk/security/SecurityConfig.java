@@ -15,25 +15,28 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableMethodSecurity
 public class SecurityConfig {
 
-	@Autowired
-	private JwtFilter jwtFilter;
-	
-	@Bean
-	public PasswordEncoder passwordEncoder() {
-	    return new BCryptPasswordEncoder();
-	}
-	
-	@Bean
-	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception{
-		http.csrf(AbstractHttpConfigurer::disable)
-			.authorizeHttpRequests(auth -> auth
-					.requestMatchers("/api/auth/registrar", "/api/auth/login").permitAll()
-					.anyRequest().authenticated()
-					)
-			.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
-		return http.build();
-	}
-	
+    @Autowired
+    private JwtFilter jwtFilter;
+    @Autowired
+    private CorsConfig corsConfig;
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        http.cors(cors -> cors.configurationSource(corsConfig.corsConfigurationSource()))
+                .csrf(AbstractHttpConfigurer::disable)
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/api/auth/registrar", "/api/auth/login").permitAll()
+                        .anyRequest().authenticated()
+                )
+                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
+        return http.build();
+    }
+
 }
 
 
