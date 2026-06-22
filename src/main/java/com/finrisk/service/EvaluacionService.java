@@ -93,7 +93,6 @@ public class EvaluacionService {
         evaluacion.setDniCliente(request.getDniCliente());
         evaluacion.setSueldoMensual(request.getIngresosMensuales());
         evaluacion.setDeudasMensuales(request.getDeudasActuales());
-        evaluacion.setEstadoSolicitud(request.getEstadoSolicitud());
 
         BigDecimal ingresos = request.getIngresosMensuales();
         BigDecimal deudas = request.getDeudasActuales();
