@@ -8,52 +8,46 @@ import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/evaluaciones")
 public class EvaluacionController {
 
-    private final EvaluacionService evaluacionService;
+    private final EvaluacionService service;
 
-    public EvaluacionController(EvaluacionService evaluacionService) {
-        this.evaluacionService = evaluacionService;
+    public EvaluacionController(EvaluacionService service) {
+        this.service = service;
     }
 
     @PostMapping
-    public ResponseEntity<EvaluacionResponse> registrarEvaluacion(@Valid @RequestBody EvaluacionRequest request) {
-        EvaluacionResponse response = evaluacionService.crearEvaluacion(request);
-        return new ResponseEntity<>(response, HttpStatus.CREATED);
+    public ResponseEntity<EvaluacionResponse> registrar(@Valid @RequestBody EvaluacionRequest req) {
+        return new ResponseEntity<>(service.crearEvaluacion(req), HttpStatus.CREATED);
     }
 
     @GetMapping
     public ResponseEntity<List<EvaluacionResponse>> listar() {
-        List<EvaluacionResponse> lista = evaluacionService.listarTodas();
-        return ResponseEntity.ok(lista);
+        return ResponseEntity.ok(service.listarTodas());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<EvaluacionResponse> obtener(@PathVariable("id") Long id) {
-        EvaluacionResponse response = evaluacionService.obtenerPorId(id);
-        return ResponseEntity.ok(response);
+    public ResponseEntity<EvaluacionResponse> obtener(@PathVariable Long id) {
+        return ResponseEntity.ok(service.obtenerPorId(id));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<EvaluacionResponse> actualizar(@PathVariable("id") Long id, @Valid @RequestBody EvaluacionRequest request) {
-        EvaluacionResponse response = evaluacionService.actualizarEvaluacion(id, request);
-        return ResponseEntity.ok(response);
+    public ResponseEntity<EvaluacionResponse> actualizar(@PathVariable Long id, @Valid @RequestBody EvaluacionRequest req) {
+        return ResponseEntity.ok(service.actualizarEvaluacion(id, req));
     }
 
     @PatchMapping("/{id}/estado")
-    public ResponseEntity<EvaluacionResponse> cambiarEstado(@PathVariable("id") Long id, @Valid @RequestBody CambioEstadoRequest request) {
-        EvaluacionResponse response = evaluacionService.actualizarEstado(id, request);
-        return ResponseEntity.ok(response);
+    public ResponseEntity<EvaluacionResponse> cambiarEstado(@PathVariable Long id, @Valid @RequestBody CambioEstadoRequest req) {
+        return ResponseEntity.ok(service.actualizarEstado(id, req));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> eliminar(@PathVariable("id") Long id) {
-        evaluacionService.eliminar(id);
-        return ResponseEntity.ok("Borrado exitosamente");
+    public ResponseEntity<Void> eliminar(@PathVariable Long id) {
+        service.eliminar(id);
+        return ResponseEntity.noContent().build();
     }
 }
