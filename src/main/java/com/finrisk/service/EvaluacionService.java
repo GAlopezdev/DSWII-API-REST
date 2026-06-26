@@ -1,15 +1,18 @@
 package com.finrisk.service;
 
-import com.finrisk.dto.CambioEstadoRequest;
-import com.finrisk.entity.Empresa;
+import com.finrisk.dto.EvaluacionRequest;
+import com.finrisk.dto.EvaluacionResponse;
+import com.finrisk.entity.Evaluacion;
+import com.finrisk.entity.HistorialExterno;
+import com.finrisk.entity.ProductoCredito;
+import com.finrisk.entity.Usuario;
 import com.finrisk.exception.BadCredentialsException;
 import com.finrisk.exception.ResourceNotFound;
 import com.finrisk.mapper.EvaluacionMapper;
-import com.finrisk.dto.EvaluacionRequest;
-import com.finrisk.dto.EvaluacionResponse;
-import com.finrisk.entity.EvaluacionFinanciera;
-import com.finrisk.repository.EmpresaRepository;
 import com.finrisk.repository.EvaluacionRepository;
+import com.finrisk.repository.HistorialExternoRepository;
+import com.finrisk.repository.ProductoCreditoRepository;
+import com.finrisk.repository.UsuarioRepository;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -22,132 +25,101 @@ import java.util.List;
 @Service
 public class EvaluacionService {
 
-	private final EvaluacionRepository evaluacionRepository;
-	private final EvaluacionMapper evaluacionMapper;
-    private final EmpresaRepository empresaRepository;
+    private final EvaluacionRepository evaluacionRepository;
+    private final HistorialExternoRepository historialExternoRepository;
+    private final ProductoCreditoRepository productoCreditoRepository;
+    private final UsuarioRepository usuarioRepository;
+    private final EvaluacionMapper mapper;
 
-    public EvaluacionService(EvaluacionRepository evaluacionRepository, EvaluacionMapper evaluacionMapper, EmpresaRepository empresaRepository) {
+    public EvaluacionService(
+            EvaluacionRepository evaluacionRepository,
+            HistorialExternoRepository historialExternoRepository,
+            ProductoCreditoRepository productoCreditoRepository,
+            UsuarioRepository usuarioRepository,
+            EvaluacionMapper mapper) {
         this.evaluacionRepository = evaluacionRepository;
-        this.evaluacionMapper = evaluacionMapper;
-        this.empresaRepository = empresaRepository;
+        this.historialExternoRepository = historialExternoRepository;
+        this.productoCreditoRepository = productoCreditoRepository;
+        this.usuarioRepository = usuarioRepository;
+        this.mapper = mapper;
     }
 
-    private Empresa getEmpresaAutenticada() {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        String email = auth.getName();
-        return empresaRepository.findByEmail(email)
-                .orElseThrow(() -> new BadCredentialsException("Empresa no encontrada"));
+    @Transactional
+    public EvaluacionResponse evaluar(EvaluacionRequest request) {
+        Usuario asesor = getUsuarioAutenticado();
+
+        HistorialExterno historial = historialExternoRepository.findByDni(request.getDni())
+                .orElseThrow(() -> new ResourceNotFound(
+                        "No se encontró historial externo para el DNI: " + request.getDni()));
+
+        ProductoCredito producto = productoCreditoRepository.findById(request.getProductoId())
+                .orElseThrow(() -> new ResourceNotFound(
+                        "Producto de crédito no encontrado con id: " + request.getProductoId()));
+
+        int scoreObtenido = calcularScore(historial);
+        String estado = scoreObtenido >= producto.getScoreMinimo() ? "APROBADO" : "RECHAZADO";
+
+        String comentarioAuto = generarComentario(historial, scoreObtenido, producto.getScoreMinimo(), estado);
+        String comentarioFinal = (request.getComentarios() != null && !request.getComentarios().isBlank())
+                ? request.getComentarios()
+                : comentarioAuto;
+
+        Evaluacion evaluacion = new Evaluacion();
+        evaluacion.setHistorialExterno(historial);
+        evaluacion.setProductoCredito(producto);
+        evaluacion.setUsuario(asesor);
+        evaluacion.setScoreObtenido(scoreObtenido);
+        evaluacion.setEstado(estado);
+        evaluacion.setComentarios(comentarioFinal);
+
+        return mapper.toResponse(evaluacionRepository.save(evaluacion));
     }
 
-    public EvaluacionResponse crearEvaluacion(EvaluacionRequest request) {
-		EvaluacionFinanciera evaluacion = evaluacionMapper.toEntity(request);
-
-        BigDecimal ingresos = request.getIngresosMensuales();
-        BigDecimal deudas = request.getDeudasActuales();
-
-        int score = calcularScore(ingresos, deudas);
-        String riesgo = determinarRiesgo(score);
-
-        evaluacion.setPuntajeScore(score);
-        evaluacion.setResultadoRiesgo(riesgo);
-        evaluacion.setEstadoSolicitud("PENDIENTE");
-
-        evaluacion.setEmpresa(getEmpresaAutenticada());
-
-		EvaluacionFinanciera evaluacionGuardada = evaluacionRepository.save(evaluacion);
-		return evaluacionMapper.toResponse(evaluacionGuardada);
-	}
-
-    public List<EvaluacionResponse> listarTodas() {
-        Empresa empresa = getEmpresaAutenticada();
-        return evaluacionRepository.findByEmpresa(empresa)
+    public List<EvaluacionResponse> listarMisEvaluaciones() {
+        Usuario asesor = getUsuarioAutenticado();
+        return evaluacionRepository.findByUsuario(asesor)
                 .stream()
-                .map(evaluacionMapper::toResponse)
+                .map(mapper::toResponse)
                 .toList();
     }
 
-    public EvaluacionResponse obtenerPorId(Long id) {
-        Empresa empresa = getEmpresaAutenticada();
-
-        EvaluacionFinanciera evaluacion = evaluacionRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFound("Evaluación no encontrada"));
-
-        if (!evaluacion.getEmpresa().getIdEmpresa().equals(empresa.getIdEmpresa())) {
-            throw new ResourceNotFound("Evaluación no encontrada");
-        }
-
-        return evaluacionMapper.toResponse(evaluacion);
+    public EvaluacionResponse obtenerPorId(Integer id) {
+        Evaluacion evaluacion = evaluacionRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFound("Evaluación no encontrada con id: " + id));
+        return mapper.toResponse(evaluacion);
     }
 
-    @Transactional
-    public EvaluacionResponse actualizarEvaluacion(Long id, EvaluacionRequest request) {
-        Empresa empresa = getEmpresaAutenticada();
-        EvaluacionFinanciera evaluacion = evaluacionRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFound("Evaluación no encontrada"));
+    private int calcularScore(HistorialExterno historial) {
+        int scoreBase = 1000;
 
-        if (!evaluacion.getEmpresa().getIdEmpresa().equals(empresa.getIdEmpresa())) {
-            throw new ResourceNotFound("Evaluación no encontrada");
-        }
+        double penDeuda = historial.getDeudaTotal()
+                .divide(new BigDecimal("1000"), 4, RoundingMode.HALF_UP)
+                .multiply(new BigDecimal("5"))
+                .doubleValue();
+        penDeuda = Math.min(300, penDeuda);
 
-        evaluacion.setNombrePersona(request.getNombreCliente());
-        evaluacion.setDniCliente(request.getDniCliente());
-        evaluacion.setSueldoMensual(request.getIngresosMensuales());
-        evaluacion.setDeudasMensuales(request.getDeudasActuales());
+        int penMora = historial.getDiasMora() * 2;
+        int penEmpresas = Math.max(0, (historial.getNumeroEmpresas() - 1) * 10);
 
-        BigDecimal ingresos = request.getIngresosMensuales();
-        BigDecimal deudas = request.getDeudasActuales();
-        int score = calcularScore(ingresos, deudas);
-        String riesgo = determinarRiesgo(score);
-
-        evaluacion.setPuntajeScore(score);
-        evaluacion.setResultadoRiesgo(riesgo);
-
-        EvaluacionFinanciera actualizada = evaluacionRepository.save(evaluacion);
-        return evaluacionMapper.toResponse(actualizada);
+        int scoreFinal = scoreBase - (int) penDeuda - penMora - penEmpresas;
+        return Math.max(0, Math.min(1000, scoreFinal));
     }
 
-    @Transactional
-    public EvaluacionResponse actualizarEstado(Long id, CambioEstadoRequest request) {
-        Empresa empresa = getEmpresaAutenticada();
-        EvaluacionFinanciera evaluacion = evaluacionRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFound("Evaluación no encontrada"));
-
-        if (!evaluacion.getEmpresa().getIdEmpresa().equals(empresa.getIdEmpresa())) {
-            throw new ResourceNotFound("Evaluación no encontrada");
-        }
-
-        evaluacion.setEstadoSolicitud(request.getEstadoSolicitud());
-        EvaluacionFinanciera actualizada = evaluacionRepository.save(evaluacion);
-        return evaluacionMapper.toResponse(actualizada);
+    private String generarComentario(HistorialExterno historial, int score, int scoreMinimo, String estado) {
+        return String.format(
+                "Score obtenido: %d / Score mínimo requerido: %d. " +
+                "Deuda total: S/%.2f, Días de mora: %d, Empresas reportadas: %d. Estado: %s.",
+                score, scoreMinimo,
+                historial.getDeudaTotal(),
+                historial.getDiasMora(),
+                historial.getNumeroEmpresas(),
+                estado);
     }
 
-    @Transactional
-    public void eliminar(Long id) {
-        Empresa empresa = getEmpresaAutenticada();
-
-        EvaluacionFinanciera evaluacion = evaluacionRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFound("Evaluación no encontrada"));
-
-        if (!evaluacion.getEmpresa().getIdEmpresa().equals(empresa.getIdEmpresa())) {
-            throw new ResourceNotFound("Evaluación no encontrada");
-
-        }
-        evaluacionRepository.delete(evaluacion);
-    }
-
-
-    private int calcularScore(BigDecimal ingresos, BigDecimal deudas) {
-        if (ingresos.compareTo(BigDecimal.ZERO) == 0 || deudas.compareTo(ingresos) >= 0) {
-            return 0;
-        }
-        BigDecimal libre = ingresos.subtract(deudas);
-        BigDecimal porcentaje = libre.divide(ingresos, 4, RoundingMode.HALF_UP);
-        return porcentaje.multiply(new BigDecimal("1000")).setScale(0, RoundingMode.HALF_UP).intValue();
-    }
-
-    private String determinarRiesgo(int score) {
-        if (score >= 700) return "BAJO";
-        else if (score >= 300) return "MEDIO";
-        else return "ALTO";
+    private Usuario getUsuarioAutenticado() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String email = auth.getName();
+        return usuarioRepository.findByEmail(email)
+                .orElseThrow(() -> new BadCredentialsException("Usuario no encontrado"));
     }
 }

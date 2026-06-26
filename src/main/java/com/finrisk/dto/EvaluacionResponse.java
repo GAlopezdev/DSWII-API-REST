@@ -1,31 +1,32 @@
 package com.finrisk.dto;
 
-import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 public class EvaluacionResponse {
-	private Long idEvalucion;
-	private String nombreCliente;
-	private String dniCliente;
-	private BigDecimal ingresosMensuales;
-	private BigDecimal deudasActuales;
-	private Integer puntajeScore;
-	private String resultadoRiesgo;
-	private String estadoSolicitud;
 
-    public Long getIdEvalucion() {
-        return idEvalucion;
+    private Integer evaluacionId;
+
+    private String dniCliente;
+    private String nombreCliente;
+    private String apellidoCliente;
+
+    private Integer productoId;
+    private String nombreProducto;
+    private Integer scoreMinimo;
+
+    private String emailAsesor;
+
+    private Integer scoreObtenido;
+    private String estado;
+    private LocalDateTime fechaEvaluacion;
+    private String comentarios;
+
+    public Integer getEvaluacionId() {
+        return evaluacionId;
     }
 
-    public void setIdEvalucion(Long idEvalucion) {
-        this.idEvalucion = idEvalucion;
-    }
-
-    public String getNombreCliente() {
-        return nombreCliente;
-    }
-
-    public void setNombreCliente(String nombreCliente) {
-        this.nombreCliente = nombreCliente;
+    public void setEvaluacionId(Integer evaluacionId) {
+        this.evaluacionId = evaluacionId;
     }
 
     public String getDniCliente() {
@@ -36,43 +37,83 @@ public class EvaluacionResponse {
         this.dniCliente = dniCliente;
     }
 
-    public BigDecimal getIngresosMensuales() {
-        return ingresosMensuales;
+    public String getNombreCliente() {
+        return nombreCliente;
     }
 
-    public void setIngresosMensuales(BigDecimal ingresosMensuales) {
-        this.ingresosMensuales = ingresosMensuales;
+    public void setNombreCliente(String nombreCliente) {
+        this.nombreCliente = nombreCliente;
     }
 
-    public BigDecimal getDeudasActuales() {
-        return deudasActuales;
+    public String getApellidoCliente() {
+        return apellidoCliente;
     }
 
-    public void setDeudasActuales(BigDecimal deudasActuales) {
-        this.deudasActuales = deudasActuales;
+    public void setApellidoCliente(String apellidoCliente) {
+        this.apellidoCliente = apellidoCliente;
     }
 
-    public Integer getPuntajeScore() {
-        return puntajeScore;
+    public Integer getProductoId() {
+        return productoId;
     }
 
-    public void setPuntajeScore(Integer puntajeScore) {
-        this.puntajeScore = puntajeScore;
+    public void setProductoId(Integer productoId) {
+        this.productoId = productoId;
     }
 
-    public String getResultadoRiesgo() {
-        return resultadoRiesgo;
+    public String getNombreProducto() {
+        return nombreProducto;
     }
 
-    public void setResultadoRiesgo(String resultadoRiesgo) {
-        this.resultadoRiesgo = resultadoRiesgo;
+    public void setNombreProducto(String nombreProducto) {
+        this.nombreProducto = nombreProducto;
     }
 
-    public String getEstadoSolicitud() {
-        return estadoSolicitud;
+    public Integer getScoreMinimo() {
+        return scoreMinimo;
     }
 
-    public void setEstadoSolicitud(String estadoSolicitud) {
-        this.estadoSolicitud = estadoSolicitud;
+    public void setScoreMinimo(Integer scoreMinimo) {
+        this.scoreMinimo = scoreMinimo;
+    }
+
+    public String getEmailAsesor() {
+        return emailAsesor;
+    }
+
+    public void setEmailAsesor(String emailAsesor) {
+        this.emailAsesor = emailAsesor;
+    }
+
+    public Integer getScoreObtenido() {
+        return scoreObtenido;
+    }
+
+    public void setScoreObtenido(Integer scoreObtenido) {
+        this.scoreObtenido = scoreObtenido;
+    }
+
+    public String getEstado() {
+        return estado;
+    }
+
+    public void setEstado(String estado) {
+        this.estado = estado;
+    }
+
+    public LocalDateTime getFechaEvaluacion() {
+        return fechaEvaluacion;
+    }
+
+    public void setFechaEvaluacion(LocalDateTime fechaEvaluacion) {
+        this.fechaEvaluacion = fechaEvaluacion;
+    }
+
+    public String getComentarios() {
+        return comentarios;
+    }
+
+    public void setComentarios(String comentarios) {
+        this.comentarios = comentarios;
     }
 }

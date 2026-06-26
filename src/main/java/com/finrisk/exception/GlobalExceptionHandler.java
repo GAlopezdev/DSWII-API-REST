@@ -46,7 +46,7 @@ public class GlobalExceptionHandler {
 		response.setPath(request.getRequestURI());
 		response.setTimestamp(LocalDateTime.now());
 		
-		return ResponseEntity.badRequest().body(response);
+		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
 	}
 
     @ExceptionHandler(BadCredentialsException.class)
@@ -70,9 +70,6 @@ public class GlobalExceptionHandler {
 		response.setPath(request.getRequestURI());
 		response.setTimestamp(LocalDateTime.now());
 		
-		return ResponseEntity.badRequest().body(response);
+		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
 	}
-
-	
-	
 }

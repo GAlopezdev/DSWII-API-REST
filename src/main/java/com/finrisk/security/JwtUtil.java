@@ -21,10 +21,11 @@ public class JwtUtil {
 		this.key = Keys.hmacShaKeyFor(SECRET_STRING.getBytes(StandardCharsets.UTF_8));
 	}
 
-    public String generateToken(String username) {
+    public String generateToken(String username, String rol) {
         Date now = new Date();
         return Jwts.builder()
                 .setSubject(username)
+                .claim("rol", rol)
                 .setIssuedAt(now)
                 .setExpiration(new Date(now.getTime() + 3600000))
                 .signWith(key, SignatureAlgorithm.HS256)

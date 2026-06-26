@@ -1,32 +1,43 @@
 package com.finrisk.mapper;
 
-import com.finrisk.dto.EvaluacionRequest;
 import com.finrisk.dto.EvaluacionResponse;
-import com.finrisk.entity.EvaluacionFinanciera;
+import com.finrisk.entity.Evaluacion;
+import com.finrisk.entity.HistorialExterno;
+import com.finrisk.entity.ProductoCredito;
 import org.springframework.stereotype.Component;
 
 @Component
 public class EvaluacionMapper {
 
-    public EvaluacionFinanciera toEntity(EvaluacionRequest request) {
-        EvaluacionFinanciera entity = new EvaluacionFinanciera();
-        entity.setNombrePersona(request.getNombreCliente());
-        entity.setDniCliente(request.getDniCliente());
-        entity.setSueldoMensual(request.getIngresosMensuales());
-        entity.setDeudasMensuales(request.getDeudasActuales());
-        return entity;
-    }
-
-    public EvaluacionResponse toResponse(EvaluacionFinanciera entity) {
+    public EvaluacionResponse toResponse(Evaluacion evaluacion) {
+        if (evaluacion == null) return null;
+        
         EvaluacionResponse response = new EvaluacionResponse();
-        response.setIdEvalucion(entity.getIdEvaluacion().longValue());
-        response.setNombreCliente(entity.getNombrePersona());
-        response.setDniCliente(entity.getDniCliente());
-        response.setIngresosMensuales(entity.getSueldoMensual());
-        response.setDeudasActuales(entity.getDeudasMensuales());
-        response.setPuntajeScore(entity.getPuntajeScore());
-        response.setResultadoRiesgo(entity.getResultadoRiesgo());
-        response.setEstadoSolicitud(entity.getEstadoSolicitud());
+        response.setEvaluacionId(evaluacion.getEvaluacionId());
+
+        HistorialExterno h = evaluacion.getHistorialExterno();
+        if (h != null) {
+            response.setDniCliente(h.getDni());
+            response.setNombreCliente(h.getNombre());
+            response.setApellidoCliente(h.getApellido());
+        }
+
+        ProductoCredito p = evaluacion.getProductoCredito();
+        if (p != null) {
+            response.setProductoId(p.getProductoId());
+            response.setNombreProducto(p.getNombreProducto());
+            response.setScoreMinimo(p.getScoreMinimo());
+        }
+
+        if (evaluacion.getUsuario() != null) {
+            response.setEmailAsesor(evaluacion.getUsuario().getEmail());
+        }
+        
+        response.setScoreObtenido(evaluacion.getScoreObtenido());
+        response.setEstado(evaluacion.getEstado());
+        response.setFechaEvaluacion(evaluacion.getFechaEvaluacion());
+        response.setComentarios(evaluacion.getComentarios());
+
         return response;
     }
 }

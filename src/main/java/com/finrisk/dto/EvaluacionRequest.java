@@ -1,60 +1,43 @@
 package com.finrisk.dto;
 
-import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
-import java.math.BigDecimal;
-
 public class EvaluacionRequest {
 
-    @NotBlank(message = "El nombre del cliente es obligatorio")
-    private String nombreCliente;
-
-    @NotBlank(message = "El DNI del cliente es obligatorio")
-    @Size(min = 8, max = 8, message = "El DNI debe tener exactamente 8 caracteres")
+    @NotBlank(message = "El DNI es obligatorio")
+    @Size(min = 8, max = 20, message = "El DNI debe tener entre 8 y 20 caracteres")
     @Pattern(regexp = "^[0-9]+$", message = "El DNI debe contener solo números")
-    private String dniCliente;
+    private String dni;
 
-    @NotNull(message = "Los ingresos mensuales son obligatorios")
-    @DecimalMin(value = "0.01", message = "Los ingresos deben ser mayores que 0")
-    private BigDecimal ingresosMensuales;
+    @NotNull(message = "El ID del producto es obligatorio")
+    private Integer productoId;
 
-    @NotNull(message = "Las deudas actuales son obligatorias")
-    @DecimalMin(value = "0.00", message = "Las deudas no pueden ser negativas")
-    private BigDecimal deudasActuales;
+    private String comentarios;
 
-	public String getNombreCliente() {
-        return nombreCliente;
+    public String getDni() {
+        return dni;
     }
 
-    public void setNombreCliente(String nombreCliente) {
-        this.nombreCliente = nombreCliente;
+    public void setDni(String dni) {
+        this.dni = dni;
     }
 
-    public String getDniCliente() {
-        return dniCliente;
+    public Integer getProductoId() {
+        return productoId;
     }
 
-    public void setDniCliente(String dniCliente) {
-        this.dniCliente = dniCliente;
+    public void setProductoId(Integer productoId) {
+        this.productoId = productoId;
     }
 
-    public BigDecimal getDeudasActuales() {
-        return deudasActuales;
+    public String getComentarios() {
+        return comentarios;
     }
 
-    public void setDeudasActuales(BigDecimal deudasActuales) {
-        this.deudasActuales = deudasActuales;
-    }
-
-    public BigDecimal getIngresosMensuales() {
-        return ingresosMensuales;
-    }
-
-    public void setIngresosMensuales(BigDecimal ingresosMensuales) {
-        this.ingresosMensuales = ingresosMensuales;
+    public void setComentarios(String comentarios) {
+        this.comentarios = comentarios;
     }
 }
