@@ -11,6 +11,7 @@ public class HistorialExternoResponse {
     private BigDecimal deudaTotal;
     private Integer numeroEmpresas;
     private Integer diasMora;
+    private BigDecimal sueldo;
 
     public Integer getExternoId() {
         return externoId;
@@ -66,5 +67,13 @@ public class HistorialExternoResponse {
 
     public void setDiasMora(Integer diasMora) {
         this.diasMora = diasMora;
+    }
+
+    public BigDecimal getSueldo() {
+        return sueldo;
+    }
+
+    public void setSueldo(BigDecimal sueldo) {
+        this.sueldo = sueldo;
     }
 }

@@ -31,6 +31,10 @@ public class HistorialExternoRequest {
     @Min(value = 0, message = "Los días de mora no pueden ser negativos")
     private Integer diasMora;
 
+    @NotNull(message = "El sueldo es obligatorio")
+    @Min(value = 0, message = "El sueldo no puede ser negativo")
+    private BigDecimal sueldo;
+
     public String getDni() {
         return dni;
     }
@@ -77,5 +81,13 @@ public class HistorialExternoRequest {
 
     public void setDiasMora(Integer diasMora) {
         this.diasMora = diasMora;
+    }
+
+    public BigDecimal getSueldo() {
+        return sueldo;
+    }
+
+    public void setSueldo(BigDecimal sueldo) {
+        this.sueldo = sueldo;
     }
 }

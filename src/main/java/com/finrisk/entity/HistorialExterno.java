@@ -35,6 +35,9 @@ public class HistorialExterno {
     @Column(name = "dias_mora")
     private Integer diasMora = 0;
 
+    @Column(name = "sueldo", precision = 10, scale = 2)
+    private BigDecimal sueldo = BigDecimal.ZERO;
+
     public Integer getExternoId() {
         return externoId;
     }
@@ -89,5 +92,13 @@ public class HistorialExterno {
 
     public void setDiasMora(Integer diasMora) {
         this.diasMora = diasMora;
+    }
+
+    public BigDecimal getSueldo() {
+        return sueldo;
+    }
+
+    public void setSueldo(BigDecimal sueldo) {
+        this.sueldo = sueldo;
     }
 }

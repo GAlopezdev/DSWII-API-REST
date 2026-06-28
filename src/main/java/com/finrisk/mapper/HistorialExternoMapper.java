@@ -17,6 +17,7 @@ public class HistorialExternoMapper {
         historial.setDeudaTotal(request.getDeudaTotal());
         historial.setNumeroEmpresas(request.getNumeroEmpresas());
         historial.setDiasMora(request.getDiasMora());
+        historial.setSueldo(request.getSueldo());
         return historial;
     }
 
@@ -30,6 +31,7 @@ public class HistorialExternoMapper {
         response.setDeudaTotal(historial.getDeudaTotal());
         response.setNumeroEmpresas(historial.getNumeroEmpresas());
         response.setDiasMora(historial.getDiasMora());
+        response.setSueldo(historial.getSueldo());
         return response;
     }
 }

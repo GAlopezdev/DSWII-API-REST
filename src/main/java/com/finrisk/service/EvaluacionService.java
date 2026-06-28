@@ -92,24 +92,33 @@ public class EvaluacionService {
     private int calcularScore(HistorialExterno historial) {
         int scoreBase = 1000;
 
+        // (deuda_total / 50)
         double penDeuda = historial.getDeudaTotal()
-                .divide(new BigDecimal("1000"), 4, RoundingMode.HALF_UP)
-                .multiply(new BigDecimal("5"))
+                .divide(new BigDecimal("50"), 4, RoundingMode.HALF_UP)
                 .doubleValue();
-        penDeuda = Math.min(300, penDeuda);
 
+        // (dias_mora * 2)
         int penMora = historial.getDiasMora() * 2;
-        int penEmpresas = Math.max(0, (historial.getNumeroEmpresas() - 1) * 10);
 
-        int scoreFinal = scoreBase - (int) penDeuda - penMora - penEmpresas;
+        // (numero_empresas * 20)
+        int penEmpresas = historial.getNumeroEmpresas() * 20;
+
+        // ((sueldo - 1130) / 100)
+        double bonoSueldo = historial.getSueldo()
+                .subtract(new BigDecimal("1130"))
+                .divide(new BigDecimal("100"), 4, RoundingMode.HALF_UP)
+                .doubleValue();
+
+        int scoreFinal = scoreBase - (int) penDeuda - penMora - penEmpresas + (int) bonoSueldo;
         return Math.max(0, Math.min(1000, scoreFinal));
     }
 
     private String generarComentario(HistorialExterno historial, int score, int scoreMinimo, String estado) {
         return String.format(
                 "Score obtenido: %d / Score mínimo requerido: %d. " +
-                "Deuda total: S/%.2f, Días de mora: %d, Empresas reportadas: %d. Estado: %s.",
+                "Sueldo: S/%.2f, Deuda total: S/%.2f, Días de mora: %d, Empresas reportadas: %d. Estado: %s.",
                 score, scoreMinimo,
+                historial.getSueldo(),
                 historial.getDeudaTotal(),
                 historial.getDiasMora(),
                 historial.getNumeroEmpresas(),
