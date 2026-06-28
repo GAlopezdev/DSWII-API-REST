@@ -26,7 +26,7 @@ public class Evaluacion {
     private HistorialExterno historialExterno;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "producto_id", nullable = false)
+    @JoinColumn(name = "producto_id")
     private ProductoCredito productoCredito;
 
     @ManyToOne(fetch = FetchType.LAZY)

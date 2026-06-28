@@ -10,6 +10,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.util.StringUtils;
+import com.finrisk.dto.HistorialExternoSearchRequest;
+import com.finrisk.repository.HistorialExternoSpecification;
+import com.finrisk.dto.HistorialExternoProjection;
 
 @Service
 public class HistorialExternoService {
@@ -35,6 +40,28 @@ public class HistorialExternoService {
                 .stream()
                 .map(mapper::toResponse)
                 .toList();
+    }
+
+    public List<HistorialExterno> find(HistorialExternoSearchRequest request) {
+        Specification<HistorialExterno> spec = Specification.unrestricted();
+        
+        if (StringUtils.hasText(request.getNombre())) {
+            spec = spec.and(HistorialExternoSpecification.nombreContains(request.getNombre()));
+        }
+        
+        if (StringUtils.hasText(request.getApellido())) {
+            spec = spec.and(HistorialExternoSpecification.apellidoContains(request.getApellido()));
+        }
+
+        if (StringUtils.hasText(request.getDni())) {
+            spec = spec.and(HistorialExternoSpecification.dniEquals(request.getDni()));
+        }
+        
+        return historialExternoRepository.findAll(spec);
+    }
+    
+    public List<HistorialExternoProjection> getAllProjected() {
+        return historialExternoRepository.findAllProjectedBy();
     }
 
     public HistorialExternoResponse obtenerPorId(Integer id) {

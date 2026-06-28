@@ -9,6 +9,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import com.finrisk.dto.EvaluacionSearchRequest;
+import com.finrisk.dto.EvaluacionProjection;
 
 @RestController
 @RequestMapping("/api/evaluaciones")
@@ -28,6 +30,16 @@ public class EvaluacionController {
     @GetMapping
     public ResponseEntity<List<EvaluacionResponse>> listarMias() {
         return ResponseEntity.ok(evaluacionService.listarMisEvaluaciones());
+    }
+
+    @GetMapping("/find")
+    public ResponseEntity<List<EvaluacionProjection>> findEvaluaciones(@ModelAttribute EvaluacionSearchRequest request) {
+        return ResponseEntity.ok(evaluacionService.findMisEvaluaciones(request));
+    }
+
+    @GetMapping("/projections")
+    public ResponseEntity<List<EvaluacionProjection>> listarProyecciones() {
+        return ResponseEntity.ok(evaluacionService.listarMisEvaluacionesProyectadas());
     }
 
     @GetMapping("/{id}")

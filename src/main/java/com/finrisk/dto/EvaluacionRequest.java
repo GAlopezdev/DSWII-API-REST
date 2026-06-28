@@ -12,7 +12,6 @@ public class EvaluacionRequest {
     @Pattern(regexp = "^[0-9]+$", message = "El DNI debe contener solo números")
     private String dni;
 
-    @NotNull(message = "El ID del producto es obligatorio")
     private Integer productoId;
 
     private String comentarios;

@@ -9,6 +9,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import com.finrisk.dto.HistorialExternoSearchRequest;
+import com.finrisk.dto.HistorialExternoProjection;
+import com.finrisk.entity.HistorialExterno;
 
 @RestController
 @RequestMapping("/api/historial")
@@ -28,6 +31,25 @@ public class HistorialExternoController {
     @GetMapping
     public ResponseEntity<List<HistorialExternoResponse>> listar() {
         return ResponseEntity.ok(historialExternoService.listarTodos());
+    }
+
+    @GetMapping("/find")
+    public List<HistorialExterno> findHistorial(
+            @RequestParam(required = false) String nombre,
+            @RequestParam(required = false) String apellido,
+            @RequestParam(required = false) String dni) {
+        
+        HistorialExternoSearchRequest request = new HistorialExternoSearchRequest();
+        request.setNombre(nombre);
+        request.setApellido(apellido);
+        request.setDni(dni);
+        
+        return historialExternoService.find(request);
+    }
+
+    @GetMapping("/projections")
+    public ResponseEntity<List<HistorialExternoProjection>> listarProyecciones() {
+        return ResponseEntity.ok(historialExternoService.getAllProjected());
     }
 
     @GetMapping("/{id}")

@@ -21,6 +21,11 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.List;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.util.StringUtils;
+import com.finrisk.dto.EvaluacionSearchRequest;
+import com.finrisk.dto.EvaluacionProjection;
+import com.finrisk.repository.EvaluacionSpecification;
 
 @Service
 public class EvaluacionService {
@@ -52,14 +57,20 @@ public class EvaluacionService {
                 .orElseThrow(() -> new ResourceNotFound(
                         "No se encontró historial externo para el DNI: " + request.getDni()));
 
-        ProductoCredito producto = productoCreditoRepository.findById(request.getProductoId())
-                .orElseThrow(() -> new ResourceNotFound(
-                        "Producto de crédito no encontrado con id: " + request.getProductoId()));
-
         int scoreObtenido = calcularScore(historial);
-        String estado = scoreObtenido >= producto.getScoreMinimo() ? "APROBADO" : "RECHAZADO";
+        ProductoCredito producto = null;
+        String estado = "RECHAZADO";
+        int scoreMinimo = 0;
 
-        String comentarioAuto = generarComentario(historial, scoreObtenido, producto.getScoreMinimo(), estado);
+        if (request.getProductoId() != null) {
+            producto = productoCreditoRepository.findById(request.getProductoId())
+                    .orElseThrow(() -> new ResourceNotFound(
+                            "Producto de crédito no encontrado con id: " + request.getProductoId()));
+            scoreMinimo = producto.getScoreMinimo();
+            estado = scoreObtenido >= scoreMinimo ? "APROBADO" : "RECHAZADO";
+        }
+
+        String comentarioAuto = generarComentario(historial, scoreObtenido, scoreMinimo, estado);
         String comentarioFinal = (request.getComentarios() != null && !request.getComentarios().isBlank())
                 ? request.getComentarios()
                 : comentarioAuto;
@@ -81,6 +92,31 @@ public class EvaluacionService {
                 .stream()
                 .map(mapper::toResponse)
                 .toList();
+    }
+
+    public List<EvaluacionProjection> findMisEvaluaciones(EvaluacionSearchRequest request) {
+        Usuario asesor = getUsuarioAutenticado();
+        Specification<Evaluacion> spec = Specification.where(EvaluacionSpecification.usuarioEquals(asesor));
+        
+        if (StringUtils.hasText(request.getDni())) {
+            spec = spec.and(EvaluacionSpecification.dniClienteEquals(request.getDni()));
+        }
+        if (StringUtils.hasText(request.getNombreCliente())) {
+            spec = spec.and(EvaluacionSpecification.nombreClienteContains(request.getNombreCliente()));
+        }
+        if (StringUtils.hasText(request.getEstado())) {
+            spec = spec.and(EvaluacionSpecification.estadoEquals(request.getEstado()));
+        }
+        if (request.getFechaInicio() != null || request.getFechaFin() != null) {
+            spec = spec.and(EvaluacionSpecification.fechaEvaluacionBetween(request.getFechaInicio(), request.getFechaFin()));
+        }
+        
+        return evaluacionRepository.findBy(spec, q -> q.as(EvaluacionProjection.class).all());
+    }
+
+    public List<EvaluacionProjection> listarMisEvaluacionesProyectadas() {
+        Usuario asesor = getUsuarioAutenticado();
+        return evaluacionRepository.findProjectedByUsuario(asesor);
     }
 
     public EvaluacionResponse obtenerPorId(Integer id) {
